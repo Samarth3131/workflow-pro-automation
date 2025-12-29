@@ -1,0 +1,111 @@
+{
+  "base_urls": {
+    "staging": {
+      "web": "https://staging.workflowpro.com",
+      "api": "https://api.staging.workflowpro.com"
+    },
+    "qa": {
+      "web": "https://qa.workflowpro.com",
+      "api": "https://api.qa.workflowpro.com"
+    }
+  },
+  
+  "test_users": {
+    "tenant_a_admin": {
+      "email": "admin@companyA.com",
+      "password": "TestPass123!",
+      "tenant_id": "tenant_a_123",
+      "tenant_name": "Company A",
+      "role": "admin",
+      "totp_secret": "JBSWY3DPEHPK3PXP"
+    },
+    "tenant_a_member": {
+      "email": "user1@companyA.com",
+      "password": "TestPass123!",
+      "tenant_id": "tenant_a_123",
+      "tenant_name": "Company A",
+      "role": "member",
+      "totp_secret": ""
+    },
+    "tenant_b_admin": {
+      "email": "admin@companyB.com",
+      "password": "TestPass456!",
+      "tenant_id": "tenant_b_456",
+      "tenant_name": "Company B",
+      "role": "admin",
+      "totp_secret": "MFRGGZDFMZTWQ2LK"
+    },
+    "tenant_b_member": {
+      "email": "user2@companyB.com",
+      "password": "TestPass456!",
+      "tenant_id": "tenant_b_456",
+      "tenant_name": "Company B",
+      "role": "member",
+      "totp_secret": ""
+    }
+  },
+  
+  "api_endpoints": {
+    "auth": {
+      "login": "/api/auth/login",
+      "logout": "/api/auth/logout",
+      "verify_2fa": "/api/auth/verify-2fa"
+    },
+    "projects": {
+      "list": "/api/projects",
+      "create": "/api/projects",
+      "get": "/api/projects/{id}",
+      "update": "/api/projects/{id}",
+      "delete": "/api/projects/{id}"
+    },
+    "tenants": {
+      "list": "/api/tenants",
+      "switch": "/api/tenants/switch"
+    }
+  },
+  
+  "test_projects": {
+    "valid_project_1": {
+      "name": "Test Project Alpha",
+      "description": "This is a test project for automation",
+      "status": "active"
+    },
+    "valid_project_2": {
+      "name": "Test Project Beta",
+      "description": "Another test project",
+      "status": "active"
+    },
+    "minimal_project": {
+      "name": "Minimal Project",
+      "description": ""
+    }
+  },
+  
+  "ui_selectors": {
+    "login": {
+      "email_input": "input[name='email']",
+      "password_input": "input[name='password']",
+      "otp_input": "input[name='otp']",
+      "login_button": "button[type='submit']",
+      "error_message": ".error-message"
+    },
+    "projects": {
+      "create_button": "button[data-testid='create-project']",
+      "project_name_input": "input[name='projectName']",
+      "project_desc_input": "textarea[name='description']",
+      "save_button": "button[data-testid='save-project']",
+      "project_list": ".project-card",
+      "delete_button": "button[data-testid='delete-project']"
+    },
+    "navigation": {
+      "tenant_switcher": "select[data-testid='tenant-switcher']",
+      "logout_button": "button[data-testid='logout']"
+    }
+  },
+  
+  "timeouts": {
+    "short": 5000,
+    "medium": 10000,
+    "long": 30000
+  }
+}

@@ -1,0 +1,74 @@
+name: CI - Automated Tests
+
+# Run on push to main/master and on pull requests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checkout code
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    # Setup Python
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    # Cache dependencies to speed up builds
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    # Install Python dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    # Install Playwright browsers
+    - name: Install Playwright browsers
+      run: |
+        playwright install chromium
+        playwright install-deps
+    
+    # Run tests
+    - name: Run tests
+      run: |
+        pytest --html=reports/report.html --self-contained-html
+      env:
+        # Add environment variables here (or use GitHub Secrets)
+        BASE_URL: https://staging.workflowpro.com
+        API_BASE_URL: https://api.staging.workflowpro.com
+        # For real credentials, use: ${{ secrets.TENANT_A_USER }}
+    
+    # Upload test report as artifact
+    - name: Upload test report
+      if: always()  # Upload even if tests fail
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-report
+        path: reports/
+        retention-days: 30
+    
+    # Optional: Upload screenshots on failure
+    - name: Upload screenshots
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-screenshots
+        path: test-results/
+        retention-days: 7
