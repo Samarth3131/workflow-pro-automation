@@ -58,7 +58,7 @@ jobs:
     # Upload test report as artifact
     - name: Upload test report
       if: always()  # Upload even if tests fail
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-report
         path: reports/
@@ -67,7 +67,7 @@ jobs:
     # Optional: Upload screenshots on failure
     - name: Upload screenshots
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-screenshots
         path: test-results/
