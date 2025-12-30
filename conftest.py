@@ -9,8 +9,7 @@ with open(TEST_DATA_PATH) as f:
     TEST_DATA = json.load(f)
 
 # Timeout configuration constants
-API_TIMEOUT = 30  # seconds for total request timeout
-CONNECTION_TIMEOUT = 10  # seconds for initial connection
+CONNECTION_TIMEOUT = 5  # seconds for initial connection (used in health checks)
 READ_TIMEOUT = 30  # seconds for reading response
 
 
@@ -87,7 +86,7 @@ def check_api_health():
         # Try a simple GET request to the API base URL with a short timeout
         response = requests.get(
             api_base_url,
-            timeout=(5, 5)
+            timeout=(CONNECTION_TIMEOUT, CONNECTION_TIMEOUT)
         )
         # Even if we get a 404, that's better than a connection timeout
         # It means the server is reachable

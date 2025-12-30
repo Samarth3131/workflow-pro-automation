@@ -2,16 +2,15 @@ import pytest
 import requests
 import json
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from conftest import CONNECTION_TIMEOUT, READ_TIMEOUT
 
 TEST_DATA_PATH = Path(__file__).parent.parent / "data" / "test_data.json"
 with open(TEST_DATA_PATH) as f:
     TEST_DATA = json.load(f)
 
 API_BASE_URL = TEST_DATA["base_urls"]["staging"]["api"]
-
-# Timeout configuration
-CONNECTION_TIMEOUT = 10  # seconds for initial connection
-READ_TIMEOUT = 30  # seconds for reading response
 
 
 class TestProjectAPI:

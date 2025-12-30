@@ -1,7 +1,11 @@
 import pytest
 import json
 import pyotp
+import requests
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from conftest import CONNECTION_TIMEOUT
 
 from playwright.sync_api import Browser, BrowserContext, Page, expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
@@ -34,14 +38,13 @@ def base_url(test_data):
 @pytest.fixture(scope="session", autouse=True)
 def check_web_health(test_data):
     """Check if web application is reachable before running UI tests"""
-    import requests
     base_url = test_data["base_urls"]["staging"]["web"]
     
     try:
         # Try to connect to the web app with a short timeout
         response = requests.get(
             base_url,
-            timeout=(5, 5)
+            timeout=(CONNECTION_TIMEOUT, CONNECTION_TIMEOUT)
         )
         # Even if we get an error status, the server is reachable
     except requests.exceptions.ConnectionError:
