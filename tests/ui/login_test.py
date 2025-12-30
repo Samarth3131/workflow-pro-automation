@@ -1,6 +1,7 @@
 import pytest
 import json
 import pyotp
+import requests
 from pathlib import Path
 
 from playwright.sync_api import Browser, BrowserContext, Page, expect
@@ -12,6 +13,9 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 # -----------------------------
 
 TEST_DATA_PATH = Path(__file__).parent.parent / "data" / "test_data.json"
+
+# Timeout configuration - matches value in conftest.py
+CONNECTION_TIMEOUT = 5  # seconds for initial connection
 
 
 def load_test_data():
@@ -29,6 +33,27 @@ def test_data():
 @pytest.fixture(scope="session")
 def base_url(test_data):
     return test_data["base_urls"]["staging"]["web"]
+
+
+@pytest.fixture(scope="session", autouse=True)
+def check_web_health(test_data):
+    """Check if web application is reachable before running UI tests"""
+    base_url = test_data["base_urls"]["staging"]["web"]
+    
+    try:
+        # Try to connect to the web app with a short timeout
+        response = requests.get(
+            base_url,
+            timeout=(CONNECTION_TIMEOUT, CONNECTION_TIMEOUT)
+        )
+        # Even if we get an error status, the server is reachable
+    except requests.exceptions.ConnectionError:
+        pytest.skip(f"Web application is unreachable at {base_url} - skipping UI tests")
+    except requests.exceptions.Timeout:
+        pytest.skip(f"Web application health check timed out for {base_url} - skipping UI tests")
+    except Exception:
+        # For other exceptions, we'll continue as it might be a legitimate server response
+        pass
 
 
 # -----------------------------
