@@ -41,9 +41,8 @@ jobs:
     
     # Install Playwright browsers
     - name: Install Playwright browsers
-      run: |
-        playwright install chromium
-        playwright install-deps
+      run: playwright install --with-deps
+
     
     # Run tests
     - name: Run tests
