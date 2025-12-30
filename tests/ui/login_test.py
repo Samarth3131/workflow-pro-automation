@@ -2,11 +2,18 @@ import pytest
 import json
 import pyotp
 from pathlib import Path
-from playwright.sync_api import Browser, BrowserContext, Page, expect, TimeoutError as PlaywrightTimeoutError
+import json
 
 TEST_DATA_PATH = Path(__file__).parent.parent / "data" / "test_data.json"
-with open(TEST_DATA_PATH) as f:
-    TEST_DATA = json.load(f)
+
+def load_test_data():
+    if not TEST_DATA_PATH.exists():
+        raise FileNotFoundError(f"Missing test data file: {TEST_DATA_PATH}")
+    with open(TEST_DATA_PATH) as f:
+        return json.load(f)
+
+TEST_DATA = load_test_data()
+
 
 BASE_URL = TEST_DATA["base_urls"]["staging"]["web"]
 
