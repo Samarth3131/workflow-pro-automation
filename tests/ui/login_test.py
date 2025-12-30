@@ -3,9 +3,6 @@ import json
 import pyotp
 import requests
 from pathlib import Path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from conftest import CONNECTION_TIMEOUT
 
 from playwright.sync_api import Browser, BrowserContext, Page, expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
@@ -16,6 +13,9 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 # -----------------------------
 
 TEST_DATA_PATH = Path(__file__).parent.parent / "data" / "test_data.json"
+
+# Timeout configuration - matches value in conftest.py
+CONNECTION_TIMEOUT = 5  # seconds for initial connection
 
 
 def load_test_data():
