@@ -9,6 +9,10 @@ with open(TEST_DATA_PATH) as f:
 
 API_BASE_URL = TEST_DATA["base_urls"]["staging"]["api"]
 
+# Timeout configuration
+CONNECTION_TIMEOUT = 10  # seconds for initial connection
+READ_TIMEOUT = 30  # seconds for reading response
+
 
 class TestProjectAPI:
     
@@ -28,7 +32,8 @@ class TestProjectAPI:
             try:
                 requests.delete(
                     f"{API_BASE_URL}/api/projects/{project_id}",
-                    headers={"Authorization": f"Bearer {self.tenant_a_token}"}
+                    headers={"Authorization": f"Bearer {self.tenant_a_token}"},
+                    timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
                 )
             except:
                 pass
@@ -47,7 +52,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert response.status_code == 201, f"Expected 201 but got {response.status_code}"
@@ -65,7 +71,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert response.status_code == 200
@@ -86,7 +93,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert create_response.status_code == 201
@@ -98,7 +106,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_b_token}",
                 "X-Tenant-ID": self.tenant_b_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert get_response.status_code in [403, 404], \
@@ -114,7 +123,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         project_id = create_response.json()["id"]
@@ -124,7 +134,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert delete_response.status_code in [200, 204], \
@@ -135,7 +146,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert get_response.status_code == 404, "Deleted project should return 404"
@@ -146,7 +158,8 @@ class TestProjectAPI:
         
         response = requests.post(
             f"{API_BASE_URL}/api/projects",
-            json=project_data
+            json=project_data,
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert response.status_code == 401, f"Expected 401 but got {response.status_code}"
@@ -161,7 +174,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert response.status_code == 400, \
@@ -176,7 +190,8 @@ class TestProjectAPI:
             headers={
                 "Authorization": f"Bearer {self.tenant_a_token}",
                 "X-Tenant-ID": self.tenant_a_id
-            }
+            },
+            timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT)
         )
         
         assert response.status_code == 404, \

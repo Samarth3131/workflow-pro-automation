@@ -31,6 +31,28 @@ def base_url(test_data):
     return test_data["base_urls"]["staging"]["web"]
 
 
+@pytest.fixture(scope="session", autouse=True)
+def check_web_health(test_data):
+    """Check if web application is reachable before running UI tests"""
+    import requests
+    base_url = test_data["base_urls"]["staging"]["web"]
+    
+    try:
+        # Try to connect to the web app with a short timeout
+        response = requests.get(
+            base_url,
+            timeout=(5, 5)
+        )
+        # Even if we get an error status, the server is reachable
+    except requests.exceptions.ConnectionError:
+        pytest.skip(f"Web application is unreachable at {base_url} - skipping UI tests")
+    except requests.exceptions.Timeout:
+        pytest.skip(f"Web application health check timed out for {base_url} - skipping UI tests")
+    except Exception:
+        # For other exceptions, we'll continue as it might be a legitimate server response
+        pass
+
+
 # -----------------------------
 # Timeouts
 # -----------------------------

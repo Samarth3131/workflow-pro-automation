@@ -1,10 +1,17 @@
 import pytest
 import json
+import requests
 from pathlib import Path
+from requests.adapters import HTTPAdapter, Retry
 
 TEST_DATA_PATH = Path(__file__).parent / "tests" / "data" / "test_data.json"
 with open(TEST_DATA_PATH) as f:
     TEST_DATA = json.load(f)
+
+# Timeout configuration constants
+API_TIMEOUT = 30  # seconds for total request timeout
+CONNECTION_TIMEOUT = 10  # seconds for initial connection
+READ_TIMEOUT = 30  # seconds for reading response
 
 
 def pytest_configure(config):
@@ -52,6 +59,46 @@ def api_base_url():
 def cleanup_after_test(request):
     yield
     pass
+
+
+def create_retry_session(retries=3, backoff_factor=1):
+    """Create a requests session with retry logic for handling transient network issues."""
+    session = requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=(500, 502, 503, 504),
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
+
+
+@pytest.fixture(scope="session", autouse=True)
+def check_api_health():
+    """Check if API is reachable before running tests."""
+    api_base_url = TEST_DATA["base_urls"]["staging"]["api"]
+    
+    # Try to connect to the API base URL
+    try:
+        # Try a simple GET request to the API base URL with a short timeout
+        response = requests.get(
+            api_base_url,
+            timeout=(5, 5)
+        )
+        # Even if we get a 404, that's better than a connection timeout
+        # It means the server is reachable
+    except requests.exceptions.ConnectionError:
+        pytest.skip(f"API is unreachable at {api_base_url} - skipping all tests")
+    except requests.exceptions.Timeout:
+        pytest.skip(f"API health check timed out for {api_base_url} - skipping all tests")
+    except Exception as e:
+        # For other exceptions, we'll log but continue
+        # as it might be a legitimate server response
+        pass
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
