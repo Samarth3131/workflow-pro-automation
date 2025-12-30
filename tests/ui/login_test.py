@@ -14,8 +14,9 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 TEST_DATA_PATH = Path(__file__).parent.parent / "data" / "test_data.json"
 
-# Timeout configuration - matches value in conftest.py
+# Timeout configuration - matches values in conftest.py
 CONNECTION_TIMEOUT = 5  # seconds for initial connection
+HEALTH_CHECK_TIMEOUT = 5  # seconds for health check requests
 
 
 def load_test_data():
@@ -41,10 +42,10 @@ def check_web_health(test_data):
     base_url = test_data["base_urls"]["staging"]["web"]
     
     try:
-        # Try to connect to the web app with a short timeout
+        # Use short timeout for fast health check
         response = requests.get(
             base_url,
-            timeout=(CONNECTION_TIMEOUT, CONNECTION_TIMEOUT)
+            timeout=(HEALTH_CHECK_TIMEOUT, HEALTH_CHECK_TIMEOUT)
         )
         # Even if we get an error status, the server is reachable
     except requests.exceptions.ConnectionError:

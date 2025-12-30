@@ -9,8 +9,9 @@ with open(TEST_DATA_PATH) as f:
     TEST_DATA = json.load(f)
 
 # Timeout configuration constants
-CONNECTION_TIMEOUT = 5  # seconds for initial connection (used in health checks)
+CONNECTION_TIMEOUT = 5  # seconds for initial connection (also used for health checks)
 READ_TIMEOUT = 30  # seconds for reading response
+HEALTH_CHECK_TIMEOUT = 5  # seconds for health check requests (both connection and read)
 
 
 def pytest_configure(config):
@@ -61,7 +62,24 @@ def cleanup_after_test(request):
 
 
 def create_retry_session(retries=3, backoff_factor=1):
-    """Create a requests session with retry logic for handling transient network issues."""
+    """
+    Create a requests session with retry logic for handling transient network issues.
+    
+    This utility function is available for use in tests that need retry capabilities.
+    It's not used in health checks (which should fail fast) but can be used in actual
+    test requests to handle transient failures.
+    
+    Args:
+        retries: Number of retry attempts for failed requests
+        backoff_factor: Multiplier for exponential backoff between retries
+        
+    Returns:
+        A configured requests.Session with retry logic
+        
+    Example:
+        session = create_retry_session()
+        response = session.get(url, timeout=(CONNECTION_TIMEOUT, READ_TIMEOUT))
+    """
     session = requests.Session()
     retry = Retry(
         total=retries,
@@ -83,10 +101,11 @@ def check_api_health():
     
     # Try to connect to the API base URL
     try:
-        # Try a simple GET request to the API base URL with a short timeout
+        # Use short timeout for fast health check - we want to fail fast
+        # if the API is down rather than wait for a long read timeout
         response = requests.get(
             api_base_url,
-            timeout=(CONNECTION_TIMEOUT, CONNECTION_TIMEOUT)
+            timeout=(HEALTH_CHECK_TIMEOUT, HEALTH_CHECK_TIMEOUT)
         )
         # Even if we get a 404, that's better than a connection timeout
         # It means the server is reachable
