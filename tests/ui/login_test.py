@@ -73,9 +73,12 @@ class TestRobustLogin:
             login_button.click()
             
             try:
-                otp_input = robust_page.locator(
-                    f"[data-testid='otp-input'], {selectors.get('otp_input', 'input[name=\"otp\"]')}"
-                ).first
+                otp_selector = "[data-testid='otp-input'], " + selectors.get(
+                    "otp_input", "input[name='otp']"
+                )
+                
+                otp_input = robust_page.locator(otp_selector).first
+
                 
                 if otp_input.is_visible(timeout=QUICK_TIMEOUT):
                     if user.get("totp_secret"):
